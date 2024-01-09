@@ -34,10 +34,8 @@ def get_response(query, openai_api_key):
                 f.write(uploaded_file.getvalue())
 
         documents = SimpleDirectoryReader('./files').load_data()
-        using openai as the LLM
+        # using openai as the LLM
         service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor,prompt_helper=prompt_helper)
-        # using 'llama2-chat-13B' as the default LLM
-        # service_context = ServiceContext.from_defaults()
         index = GPTSimpleVectorIndex.from_documents(documents, service_context=service_context)
         response = index.query(query)
         for uploaded_file in uploaded_files:
