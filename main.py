@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# openai_api_key = os.getenv('OPENAI_API_KEY')
+openai_api_key = os.getenv('OPENAI_API_KEY')
 
 uploaded_files = st.file_uploader(
     label="#### Upload Your Data File",
@@ -34,13 +34,12 @@ def get_response(query, openai_api_key):
                 f.write(uploaded_file.getvalue())
 
         documents = SimpleDirectoryReader('./files').load_data()
-        # using openai as the LLM
-        # service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor,prompt_helper=prompt_helper)
+        using openai as the LLM
+        service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor,prompt_helper=prompt_helper)
         # using 'llama2-chat-13B' as the default LLM
-        service_context = ServiceContext.from_defaults()
+        # service_context = ServiceContext.from_defaults()
         index = GPTSimpleVectorIndex.from_documents(documents, service_context=service_context)
-        chat_engine=index.as_chat_engine()
-        response = chat_engine.chat(query)
+        response = index.query(query)
         for uploaded_file in uploaded_files:
             file_path = os.path.join("files", uploaded_file.name)
             os.remove(file_path)
