@@ -1,7 +1,6 @@
 import os
 import streamlit as st
-from llama_index import VectorStoreIndex, SimpleDirectoryReader, PromptHelper, ServiceContext, StorageContext, \
-    get_response_synthesizer
+from llama_index import VectorStoreIndex, SimpleDirectoryReader, ServiceContext, get_response_synthesizer
 from langchain.llms import OpenAI
 from dotenv import load_dotenv
 from llama_index.retrievers import VectorIndexRetriever
@@ -12,12 +11,21 @@ load_dotenv()
 
 openai_api_key = os.getenv('OPENAI_API_KEY')
 
+st.title("Chat PDF")
+
 uploaded_files = st.file_uploader(
     label="#### Upload Your Data File",
     type=["pdf", "txt"],
     key="file_uploader",
     accept_multiple_files=True
 )
+
+# Initialize loading status
+loading_status = st.empty()
+
+if 'loaded' not in st.session_state:
+    st.session_state.loaded = False
+    st.session_state.query_engine = None
 
 
 def load_document():
@@ -28,6 +36,13 @@ def load_document():
         file_path = os.path.join("files", uploaded_file.name)
         with open(file_path, "wb") as f:
             f.write(uploaded_file.getvalue())
+
+    existing_files = os.listdir("files")
+    for file_name in existing_files:
+        file_path = os.path.join("files", file_name)
+        if file_name not in [uploaded_file.name for uploaded_file in uploaded_files]:
+            os.remove(file_path)
+
     documents = SimpleDirectoryReader('./files').load_data()
     service_context = ServiceContext.from_defaults(llm=llm)
     index = VectorStoreIndex.from_documents(documents, service_context=service_context)
@@ -49,11 +64,9 @@ def load_document():
 
 def get_response(query):
     query_engine = st.session_state.query_engine
+    response_status.text("Querying... Please wait.")
     response = query_engine.query(query)
-    for uploaded_file in uploaded_files:
-        file_path = os.path.join("files", uploaded_file.name)
-        os.remove(file_path)
-
+    response_status.empty()
     if response is None:
         st.error(f"Oops! No result found ")
     else:
@@ -61,24 +74,27 @@ def get_response(query):
 
 
 if uploaded_files and st.button('Load'):
+    loading_status.text("Loading documents... Please wait.")
     load_document()
+    loading_status.empty()
+    loading_status.success("Documents loaded successfully!")
+    st.session_state.loaded = True
 
-st.title("Chat PDF")
-
-query = st.text_input("What would you like to ask?", "")
-query = query + " based on documents uploaded"
-
-if st.button("Submit"):
-    if not query.strip():
-        st.error(f"Please provide the search query.")
-    else:
-        try:
-            if len(openai_api_key) > 0:
-                if st.session_state.query_engine is not None:
-                    get_response(query)
+if st.session_state.loaded:
+    query = st.text_input("What would you like to ask?", "")
+    query = query + " based on documents uploaded"
+    response_status = st.empty()
+    if st.button("Submit"):
+        if not query.strip():
+            st.error(f"Please provide the search query.")
+        else:
+            try:
+                if len(openai_api_key) > 0:
+                    if st.session_state.query_engine is not None:
+                        get_response(query)
+                    else:
+                        st.error("Please load the documents before submitting the query.")
                 else:
-                    st.error("Please load the documents before submitting the query.")
-            else:
-                st.error("Enter a valid openai key")
-        except Exception as e:
-            st.error(f"An error occurred: {e}")
+                    st.error("Not a valid openai key")
+            except Exception as e:
+                st.error(f"An error occurred: {e}")
