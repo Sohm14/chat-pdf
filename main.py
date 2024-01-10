@@ -20,15 +20,14 @@ uploaded_files = st.file_uploader(
 )
 
 
-def load_document(file_path):
+def load_document():
     llm = OpenAI(openai_api_key=openai_api_key, temperature=0, model_name="gpt-3.5-turbo", max_tokens=512)
-    if uploaded_files:
-        for uploaded_file in uploaded_files:
-            if not os.path.exists("files"):
-                os.makedirs("files")
-            file_path = os.path.join("files", uploaded_file.name)
-            with open(file_path, "wb") as f:
-                f.write(uploaded_file.getvalue())
+    for uploaded_file in uploaded_files:
+        if not os.path.exists("files"):
+            os.makedirs("files")
+        file_path = os.path.join("files", uploaded_file.name)
+        with open(file_path, "wb") as f:
+            f.write(uploaded_file.getvalue())
     documents = SimpleDirectoryReader('./files').load_data()
     service_context = ServiceContext.from_defaults(llm=llm)
     index = VectorStoreIndex.from_documents(documents, service_context=service_context)
@@ -61,8 +60,8 @@ def get_response(query):
         st.success(f"\nBot says :\n\n{response.response}\n\n\n")
 
 
-if st.button('Load'):
-    load_document('./files')
+if uploaded_files and st.button('Load'):
+    load_document()
 
 st.title("Chat PDF")
 
