@@ -14,10 +14,10 @@ This is a Streamlit app that allows users to upload PDF and TXT files, load them
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/velocius-ailabs/rag-poc.git your-folder
+   git clone https://github.com/velocius-ailabs/rag-poc.git 
 2. Navigate to the project directory:
    ``` bash
-   cd your-folder
+   cd rag-poc
 3. Install dependencies:
    ```bash
    pip install -r requirements.txt
@@ -36,6 +36,6 @@ This is a Streamlit app that allows users to upload PDF and TXT files, load them
 4. OpenAI API
 
 ## Configuration
-Create a .env file in the project root and add your API key:
+Create a .env file in the project root and add your OpenAI API key obtained from the OpenAI website:
 ```bash
 OPENAI_API_KEY=your-api-key-goes-here
