@@ -13,7 +13,7 @@ openai_api_key = os.getenv('OPENAI_API_KEY')
 
 st.title("Chat PDF")
 
-uploaded_files = st.file_uploader(
+uploaded_files = st.sidebar.file_uploader(
     label="#### Upload Your Data File",
     type=["pdf", "txt"],
     key="file_uploader",
@@ -73,7 +73,7 @@ def get_response(query):
         st.success(f"\nBot says :\n\n{response.response}\n\n\n")
 
 
-if uploaded_files and st.button('Load'):
+if uploaded_files and st.sidebar.button('Load'):
     loading_status.text("Loading documents... Please wait.")
     load_document()
     loading_status.empty()
