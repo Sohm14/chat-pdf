@@ -5,7 +5,7 @@ This is a Streamlit app that allows users to upload PDF and TXT files, load them
 ## Table of Contents
 
 - [Installation](#installation)
-- [Usage](#usage)
+- [Instructions](#Instructions)
 - [Dependencies](#dependencies)
 - [Configuration](#configuration)
 
@@ -22,7 +22,7 @@ This is a Streamlit app that allows users to upload PDF and TXT files, load them
    ```bash
    pip install -r requirements.txt
 
-## Usage
+## Instructions
 1. Run the Streamlit app:
    ``` bash
    streamlit run main.py
