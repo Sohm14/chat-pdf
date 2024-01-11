@@ -30,18 +30,21 @@ if 'loaded' not in st.session_state:
 
 def load_document():
     llm = OpenAI(openai_api_key=openai_api_key, temperature=0, model_name="gpt-3.5-turbo", max_tokens=512)
+    if not os.path.exists("files"):
+        os.makedirs("files")
     for uploaded_file in uploaded_files:
-        if not os.path.exists("files"):
-            os.makedirs("files")
-        file_path = os.path.join("files", uploaded_file.name)
+        file_temp=uploaded_file.name.split('.')[0] + "_temp." + uploaded_file.name.split('.')[1]
+        file_path = os.path.join("files", file_temp)
         with open(file_path, "wb") as f:
             f.write(uploaded_file.getvalue())
 
     existing_files = os.listdir("files")
-    for file_name in existing_files:
+    files_to_keep = {f"{uploaded_file.name.split('.')[0]}_temp.{uploaded_file.name.split('.')[1]}" for uploaded_file in
+                     uploaded_files}
+    files_to_remove = set(existing_files) - files_to_keep
+    for file_name in files_to_remove:
         file_path = os.path.join("files", file_name)
-        if file_name not in [uploaded_file.name for uploaded_file in uploaded_files]:
-            os.remove(file_path)
+        os.remove(file_path)
 
     documents = SimpleDirectoryReader('./files').load_data()
     service_context = ServiceContext.from_defaults(llm=llm)
