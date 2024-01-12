@@ -21,11 +21,12 @@ uploaded_files = st.sidebar.file_uploader(
 )
 
 # Initialize loading status
-loading_status = st.empty()
+loading_status = st.sidebar.empty()
 
 if 'loaded' not in st.session_state:
     st.session_state.loaded = False
     st.session_state.query_engine = None
+    st.session_state.history = []  # Keep track of input and output history
 
 
 def load_document():
@@ -33,7 +34,7 @@ def load_document():
     if not os.path.exists("files"):
         os.makedirs("files")
     for uploaded_file in uploaded_files:
-        file_temp=uploaded_file.name.split('.')[0] + "_temp." + uploaded_file.name.split('.')[1]
+        file_temp = uploaded_file.name.split('.')[0] + "_temp." + uploaded_file.name.split('.')[1]
         file_path = os.path.join("files", file_temp)
         with open(file_path, "wb") as f:
             f.write(uploaded_file.getvalue())
@@ -74,16 +75,30 @@ def get_response(query):
         st.error(f"Oops! No result found ")
     else:
         st.success(f"\nBot says :\n\n{response.response}\n\n\n")
+        # Save input and output to history
+        st.session_state.history.append({"input": query, "output": response.response})
 
 
 if uploaded_files and st.sidebar.button('Load'):
     loading_status.text("Loading documents... Please wait.")
-    load_document()
-    loading_status.empty()
-    loading_status.success("Documents loaded successfully!")
-    st.session_state.loaded = True
+    try:
+        load_document()
+        loading_status.empty()
+        loading_status.success("Documents loaded successfully!")
+        st.session_state.loaded = True
+    except Exception as e:
+        st.error(f"An error occurred: {e}")
 
 if st.session_state.loaded:
+    # Display history
+    if st.session_state.history:
+        st.subheader("Conversation History:")
+    for entry in st.session_state.history:
+        st.write(f"User: {entry['input']}")
+        st.write(f"Bot: {entry['output']}")
+        st.write("-" * 30)
+
+    # Take new input
     query = st.text_input("What would you like to ask?", "")
     query = query + " based on documents uploaded"
     response_status = st.empty()
