@@ -76,7 +76,7 @@ def get_response(query):
     else:
         st.success(f"\nBot says :\n\n{response.response}\n\n\n")
         # Save input and output to history
-        st.session_state.history.append({"input": query, "output": response.response})
+        st.session_state.history.append({"input": ','.join(query.split(',')[:-1]), "output": response.response})
 
 
 if uploaded_files and st.sidebar.button('Load'):
@@ -100,7 +100,7 @@ if st.session_state.loaded:
 
     # Take new input
     query = st.text_input("What would you like to ask?", "")
-    query = query + " based on documents uploaded"
+    query = query + " , give answer based on the documents uploaded"
     response_status = st.empty()
     if st.button("Submit"):
         if not query.strip():
