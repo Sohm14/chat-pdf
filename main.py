@@ -1,15 +1,22 @@
 import os
 import streamlit as st
-from llama_index import VectorStoreIndex, SimpleDirectoryReader, ServiceContext, get_response_synthesizer
-from langchain.llms import OpenAI
+from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, ServiceContext, get_response_synthesizer
 from dotenv import load_dotenv
-from llama_index.retrievers import VectorIndexRetriever
-from llama_index.query_engine import RetrieverQueryEngine
-from llama_index.postprocessor import SimilarityPostprocessor
+from langchain.llms import OpenAI
+from llama_index.llms.groq import Groq
+from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+from llama_index.core.embeddings import resolve_embed_model
+from llama_index.core import Settings
 
 load_dotenv()
 
-openai_api_key = os.getenv('OPENAI_API_KEY')
+# openai_api_key = os.getenv('OPENAI_API_KEY')
+# api_key = os.getenv('API_KEY')
+# api_key = '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'
+
+# llm = Groq(model="llama3-70b-8192", api_key=api_key)
+# embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-small-en-v1.5")
+embed_model = resolve_embed_model(r"local:C:\Users\Samarth\PycharmProjects\chat-pdf\bge-small-en-v1.5")
 
 st.title("Chat PDF")
 
@@ -19,6 +26,24 @@ uploaded_files = st.sidebar.file_uploader(
     key="file_uploader",
     accept_multiple_files=True
 )
+
+api_key = ''
+
+with st.sidebar:
+    st.write('')
+    api_key = st.text_input('Enter your OpenAi or Groq API key')
+
+
+if api_key.startswith('gsk'):
+    llm = Groq(model="llama3-70b-8192", api_key=api_key)
+    Settings.llm = llm
+    Settings.embed_model = embed_model
+
+if api_key.startswith('sk'):
+    llm = OpenAI(openai_api_key=api_key, temperature=0, model_name="gpt-3.5-turbo", max_tokens=512)
+    Settings.llm = llm
+
+
 
 # Initialize loading status
 loading_status = st.sidebar.empty()
@@ -30,7 +55,6 @@ if 'loaded' not in st.session_state:
 
 
 def load_document():
-    llm = OpenAI(openai_api_key=openai_api_key, temperature=0, model_name="gpt-3.5-turbo", max_tokens=512)
     if not os.path.exists("files"):
         os.makedirs("files")
     for uploaded_file in uploaded_files:
@@ -48,22 +72,9 @@ def load_document():
         os.remove(file_path)
 
     documents = SimpleDirectoryReader('./files').load_data()
-    service_context = ServiceContext.from_defaults(llm=llm)
-    index = VectorStoreIndex.from_documents(documents, service_context=service_context)
-    retriever = VectorIndexRetriever(
-        index=index,
-        similarity_top_k=10,
-    )
 
-    # configure response synthesizer
-    response_synthesizer = get_response_synthesizer()
-
-    # assemble query engine
-    st.session_state.query_engine = RetrieverQueryEngine(
-        retriever=retriever,
-        response_synthesizer=response_synthesizer,
-        node_postprocessors=[SimilarityPostprocessor(similarity_cutoff=0.7)],
-    )
+    index = VectorStoreIndex.from_documents(documents)
+    st.session_state.query_engine = index.as_query_engine(similarity_top_k=3)
 
 
 def get_response(query):
@@ -107,12 +118,12 @@ if st.session_state.loaded:
             st.error(f"Please provide the search query.")
         else:
             try:
-                if len(openai_api_key) > 0:
-                    if st.session_state.query_engine is not None:
-                        get_response(query)
-                    else:
-                        st.error("Please load the documents before submitting the query.")
+                # if len('API_KEY') > 0:
+                if st.session_state.query_engine is not None:
+                    get_response(query)
                 else:
-                    st.error("Not a valid openai key")
+                    st.error("Please load the documents before submitting the query.")
+                # else:
+                #     st.error("Not a valid openai key")
             except Exception as e:
                 st.error(f"An error occurred: {e}")
