@@ -10,10 +10,6 @@ from llama_index.core import Settings
 
 load_dotenv()
 
-# openai_api_key = os.getenv('OPENAI_API_KEY')
-# api_key = os.getenv('API_KEY')
-# api_key = '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'
-
 # llm = Groq(model="llama3-70b-8192", api_key=api_key)
 # embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-small-en-v1.5")
 embed_model = resolve_embed_model(r"local:C:\Users\Samarth\PycharmProjects\chat-pdf\bge-small-en-v1.5")
