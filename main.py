@@ -1,18 +1,16 @@
 import os
 import streamlit as st
 from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, ServiceContext, get_response_synthesizer
-from dotenv import load_dotenv
 from langchain.llms import OpenAI
 from llama_index.llms.groq import Groq
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.core.embeddings import resolve_embed_model
 from llama_index.core import Settings
 
-load_dotenv()
 
 # llm = Groq(model="llama3-70b-8192", api_key=api_key)
-# embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-small-en-v1.5")
-embed_model = resolve_embed_model(r"local:C:\Users\Samarth\PycharmProjects\chat-pdf\bge-small-en-v1.5")
+embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-small-en-v1.5")
+# embed_model = resolve_embed_model(r"local:C:\Users\Samarth\PycharmProjects\chat-pdf\bge-small-en-v1.5")
 
 st.title("Chat PDF")
 
