@@ -33,7 +33,7 @@ This is a Streamlit app that allows users to upload PDF and TXT files, load them
    ``` bash
    streamlit run main.py
 2. Open your web browser and go to the link provided in the terminal
-3. Upload PDF and TXT files
+3. Upload PDF files
 4. Enter your OpenAI or Groq API key. 
 5. Use the app to query the document index.
 
