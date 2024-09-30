@@ -4,3 +4,5 @@ langchain
 openai
 Groq
 langchain_community
+llama-index-llms-groq
+llama-index-embeddings-huggingface
