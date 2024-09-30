@@ -21,10 +21,10 @@ This is a Streamlit app that allows users to upload PDF and TXT files, load them
 3. Install dependencies:
    ```bash
    pip install -r requirements.txt
-4. Run command to download tokenizer model and use it for one time
+4. Download and use the tokenizer model once:
    ```bash
    embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-small-en-v1.5")
-5. Or Clone repository from hugging face
+5. Alternatively, clone the model repository from Hugging Face:
    ```bash
    git clone https://huggingface.co/BAAI/bge-small-en-v1.5
 
