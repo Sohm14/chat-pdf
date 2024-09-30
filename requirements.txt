@@ -3,3 +3,4 @@ llama-index
 langchain
 openai
 Groq
+langchain_community
